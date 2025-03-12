@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:jee="http://www.springframework.org/schema/jee"
+
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+    	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.1.xsd
+    	http://www.springframework.org/schema/util  http://www.springframework.org/schema/util/spring-util-4.1.xsd
+		http://www.springframework.org/schema/jee classpath:xsd/spring-jee-4.0.xsd
+		
+		http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core-5.1.0.xsd
+		http://www.springframework.org/schema/context classpath:xsd/spring-context-4.0.xsd">
+
+
+
+
+	<!-- <amq:connectionFactory id="vmjmsFactory" -->
+	<!-- brokerURL="tcp://${cas.activemq.host}:${cas.activemq.port.wire}" -->
+	<!-- userName="${cas.activemq.username}" password="${cas.activemq.password}"> -->
+	<!-- <property name="trustedPackages"> -->
+	<!-- <list> -->
+	<!-- <value>com.antruak.idm.job</value> -->
+	<!-- <value>java.util</value> -->
+	<!-- </list> -->
+	<!-- </property> -->
+	<!-- </amq:connectionFactory> -->
+
+	<!-- <amq:connectionFactory id="vmjmsFactory" -->
+	<!-- brokerURL="ssl://${cas.activemq.host}:${cas.activemq.port.wiressl}" -->
+	<!-- userName="${cas.activemq.username}" password="${cas.activemq.password}"> -->
+	<!-- <property name="trustedPackages"> -->
+	<!-- <list> -->
+	<!-- <value>com.antruak.idm.job</value> -->
+	<!-- <value>java.util</value> -->
+	<!-- </list> -->
+	<!-- </property> -->
+	<!-- </amq:connectionFactory> -->
+	<amq:queue id="smsQueueOut" physicalName="cas.sms.out" />
+	<amq:queue id="gqueue" physicalName="cas.gqueue" />
+
+	<bean id="jmsSslConnectionFactory" class="org.apache.activemq.ActiveMQSslConnectionFactory">
+		<property name="brokerURL"
+			value="ssl://${cas.activemq.host}:${cas.activemq.port.wiressl}" />
+		<property name="userName" value="${cas.activemq.username}"/>
+		<property name="password" value="${cas.activemq.password}"/>
+		<property name="keyStore"
+			value="${cas.activemq.keystore.location}" />
+		<property name="keyStorePassword" value="${cas.activemq.keystore.password}" />
+		<property name="trustStore"
+			value="${cas.activemq.truststore.location}" />
+		<property name="trustStorePassword" value="${cas.activemq.truststore.password}" />
+	</bean>
+
+
+	<!-- <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate"> -->
+	<!-- <property name="connectionFactory"> -->
+	<!-- <bean class="org.springframework.jms.connection.CachingConnectionFactory"> -->
+	<!-- <property name="targetConnectionFactory"> -->
+	<!-- <ref bean="vmjmsFactory" /> -->
+	<!-- </property> -->
+	<!-- </bean> -->
+	<!-- </property> -->
+	<!-- </bean> -->
+
+	<bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="jmsSslConnectionFactory" />
+	</bean>
+
+	<bean id="consumerJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="jmsSslConnectionFactory" />
+	</bean>
+
+
+</beans>

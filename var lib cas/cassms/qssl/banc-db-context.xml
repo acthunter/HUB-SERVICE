@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:task="http://www.springframework.org/schema/task" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:amq="http://activemq.apache.org/schema/core"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:jee="http://www.springframework.org/schema/jee"
+
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+    	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.1.xsd
+    	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.1.xsd
+		http://www.springframework.org/schema/jee classpath:xsd/spring-jee-4.0.xsd
+		
+		http://activemq.apache.org/schema/core classpath:activemq.xsd
+		http://www.springframework.org/schema/context classpath:xsd/spring-context-4.0.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.2.xsd">
+
+	<context:annotation-config />
+	<tx:annotation-driven />
+	<task:annotation-driven scheduler="smsScheduler"/>
+
+	
+	<context:component-scan base-package="com.antruak.cas.wsock.config" />
+	<context:component-scan base-package="com.antruak.cas.gsm" />
+	<context:component-scan base-package="com.antruak.cas.wsock.controller" />
+	<context:component-scan base-package="com.antruak.cas.wsock.test" />
+	<context:component-scan base-package="com.antruak.cas.tools" />
+	
+	<context:component-scan base-package="com.antruak.cas.sms.web.controller" />
+<!-- 	<context:component-scan base-package="com.antruak.cas.sms.web.config" /> -->
+	
+	<util:properties id="casProperties"
+	location="${casmain.properties.filepath}" />
+	
+
+<!-- 	<context:property-placeholder -->
+<!-- 		properties-ref="casProperties" /> -->
+
+	
+	
+	<bean id="propertyPlaceholderConfigurer"
+		class="org.jasypt.spring.properties.EncryptablePropertyPlaceholderConfigurer">
+		<constructor-arg ref="configurationEncryptor" />
+			<property name="properties">
+				<ref bean="casProperties"/>
+			</property>
+	</bean>
+
+	<bean id="configurationEncryptor" class="org.jasypt.encryption.pbe.StandardPBEStringEncryptor">
+		<property name="config" ref="environmentVariablesConfiguration" />
+	</bean>
+
+	<bean id="environmentVariablesConfiguration"
+		class="org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig">
+		<property name="algorithm" value="PBEWithMD5AndDES" />
+<!-- 		<property name="passwordEnvName" value="CAS_PBE_PASSWORD" /> -->
+		<!-- <property name="password" value="actual password here for testing 
+			ONLY" /> -->
+		<property name="password" value="secret1" />	
+	</bean>
+	
+	
+	
+	<import resource="min-mq-context-ssl.xml" />
+	<import resource="securityContext.xml" />
+	<import resource="jmx-context.xml" />
+	<import resource="metricsContext.xml" />
+	
+	
+
+<!-- 	<bean name="dataSource" class="org.apache.commons.dbcp.BasicDataSource"> -->
+<!-- 		<property name="url" -->
+<!-- 			value="jdbc:mysql://cdb.bni.co.id:3306/jbpm?autoReconnect=true" /> -->
+<!-- 		<property name="driverClassName" value="com.mysql.jdbc.Driver" /> -->
+<!-- 		<property name="username" value="jbpm" /> -->
+<!-- 		<property name="password" value="${cas.db.main.password}" /> -->
+<!-- 	</bean> -->
+
+
+<!-- 	<bean id="smsPortDAO" class="com.antruak.cas.gsm.SMSPortDAOImpl"> -->
+<!-- 		<property name="dataSource" ref="dataSource" /> -->
+<!-- 	</bean> -->
+	
+<!-- 	<task:executor id="smsExecutor" pool-size="5"/> -->
+	<task:scheduler id="smsScheduler" pool-size="5" />
+</beans>

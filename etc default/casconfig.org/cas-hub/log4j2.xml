@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<log4j:configuration monitorInterval="10"
+	xmlns:log4j="http://jakarta.apache.org/log4j/">
+	<Properties>
+		<Property name="LOG_PATTERN">
+			%d{yyyy-MM-dd HH:mm:ss.SSS} %5p ${hostName} --- [%15.15t] %-40.40c{1.} : %m%n%ex
+		</Property>
+		<Property name="CONSOLE_LOG_PATTERN">
+			%d{HH:mm:ss.SSS} %5p ${hostName} %-40.40c{1.} : %m%n%ex
+		</Property>
+	</Properties>
+	<Appenders>
+		<Console name="console" target="SYSTEM_OUT">
+			<PatternLayout pattern="${CONSOLE_LOG_PATTERN}" />
+			<ThresholdFilter level="trace" />
+		</Console>
+		<RollingFile name="file" fileName="logs/xmain.log" append="true"
+			filePattern="logs/xmain-%d{yyyy-MM-dd}-%i.log.zip">
+			<PatternLayout pattern="%d %p [%c] - %m%n" />
+			<Policies>
+				<SizeBasedTriggeringPolicy size="100 kb" />
+				<TimeBasedTriggeringPolicy interval="1"/>
+			</Policies>
+			<DefaultRolloverStrategy max="3" />
+		</RollingFile>
+		<RollingFile name="target" fileName="logs/target.log"
+			append="true" filePattern="logs/target-%d{yyyy-MM-dd}.log.zip">
+			<PatternLayout pattern="%d %p [%c] - %m%n" />
+			<Policies>
+				<SizeBasedTriggeringPolicy size="100 Mb" />
+				<TimeBasedTriggeringPolicy interval="1"
+					modulate="true" />
+			</Policies>
+			<DefaultRolloverStrategy max="30" />
+		</RollingFile>
+		<Syslog name="cas_extern" format="RFC5424" host="caslog.bni.co.id"
+			port="514" protocol="UDP" appName="cas_ext" includeMDC="false" mdcId="cas_ext"
+			facility="LOCAL0" enterpriseNumber="18060" newLine="false" messageId="Audit">
+			<LoggerFields>
+				<KeyValuePair key="thread" value="%t" />
+				<KeyValuePair key="priority" value="%p" />
+				<KeyValuePair key="category" value="%c" />
+				<KeyValuePair key="exception" value="%ex" />
+			</LoggerFields>
+		</Syslog>
+
+		<Syslog name="cas_fe" format="RFC5424" host="caslog.bni.co.id"
+			port="514" protocol="UDP" appName="cas_fe" includeMDC="false" mdcId="cas_fe"
+			facility="LOCAL0" enterpriseNumber="18060" newLine="false" messageId="AuditFE">
+			<LoggerFields>
+				<KeyValuePair key="thread" value="%t" />
+				<KeyValuePair key="priority" value="%p" />
+				<KeyValuePair key="category" value="%c" />
+				<KeyValuePair key="exception" value="%ex" />
+			</LoggerFields>
+		</Syslog>
+
+	</Appenders>
+	<Loggers>
+		<Logger name="com.antruak.banc.batch.tools" level="debug" additivity="false">
+			<AppenderRef ref="cas_extern" />
+		</Logger>
+
+		<Logger name="com.antruak.banc.batch.tools" level="info" additivity="false">
+			<AppenderRef ref="file" />
+		</Logger>
+
+
+		<Logger name="com.antruak.idm.frontend" level="debug">
+			<AppenderRef ref="cas_fe" />
+		</Logger>
+
+
+		<Logger name="com.antruak.banc.batch.main.CasMQJsf" level="info">
+
+		</Logger>
+
+		<Logger name="com.antruak.banc.test.feed" level="warn">
+			<AppenderRef ref="console" />
+		</Logger>
+
+		<Logger name="HubLog" level="trace">
+			<AppenderRef ref="target" />
+		</Logger>
+		<Logger name="com.antruak.banc.tools" level="debug"/>
+		
+
+		<Logger name="com.antruak.banc.batch.tools.BancImplHelper"
+			level="trace">
+			<AppenderRef ref="console" />
+			<AppenderRef ref="file" />
+		</Logger>
+
+		<Logger name="perfStatsLogger" level="off" />
+
+		<Root level="info">
+			<AppenderRef ref="console" />
+			<AppenderRef ref="file" />
+		</Root>
+	</Loggers>
+</log4j:configuration>

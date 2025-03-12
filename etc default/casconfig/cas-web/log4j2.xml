@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Configuration monitorInterval="10">
+	<Appenders>
+		<Console name="console" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d %p [%c] - &lt;%m&gt;%n" />
+			<!-- <ThresholdFilter level="debug"/> -->
+		</Console>
+
+		<!-- <Console name="console" target="SYSTEM_OUT"> -->
+		<!-- <PatternLayout pattern="%d %p [%c] - &lt;%m&gt;%n" /> -->
+		<!-- </Console> -->
+		<RollingFile name="file" fileName="logs/cas.log" append="true"
+			filePattern="logs/cas-%d{yyyy-MM-dd}-%i.log.zip">
+			<PatternLayout pattern="%d %p [%c] - %m%n" />
+			<Policies>
+				<SizeBasedTriggeringPolicy size="100 MB" />
+				<TimeBasedTriggeringPolicy />
+			</Policies>
+		</RollingFile>
+
+		<RollingFile name="smsfile" fileName="logs/sms.log"
+			append="true" filePattern="logs/sms-%d{yyyy-MM-dd}-%i.log.zip">
+			<PatternLayout pattern="%d %p [%c] - %m%n" />
+			<Policies>
+				<SizeBasedTriggeringPolicy size="100 MB" />
+				<TimeBasedTriggeringPolicy />
+			</Policies>
+		</RollingFile>
+
+		<RollingFile name="perfFileAppender" fileName="logs/perfStats.log"
+			append="true" filePattern="logs/perfStats-%d{yyyy-MM-dd}-%i.log.zip">
+			<PatternLayout pattern="%m%n" />
+			<Policies>
+				<SizeBasedTriggeringPolicy size="100 MB" />
+				<TimeBasedTriggeringPolicy />
+			</Policies>
+		</RollingFile>
+		<Syslog name="syslog" format="RFC5424" host="caslog.bni.co.id"
+			port="514" protocol="UDP" appName="testlog4j" includeMDC="false"
+			mdcId="testlog4j" facility="LOCAL0" enterpriseNumber="18060" newLine="false"
+			messageId="Audit">
+			<LoggerFields>
+				<KeyValuePair key="thread" value="%t" />
+				<KeyValuePair key="priority" value="%p" />
+				<KeyValuePair key="category" value="%c" />
+				<KeyValuePair key="exception" value="%ex" />
+			</LoggerFields>
+
+		</Syslog>
+
+		<!-- OPTION#2: Use socket with explicit pattern -->
+		<Socket name="syslogsocket" host="caslog.bni.co.id" port="514"
+			protocol="UDP">
+			<PatternLayout
+				pattern="&lt;134&gt;%d{MMM dd HH:mm:ss} ${hostName} testlog4j: {
+              &quot;thread&quot;:&quot;%t&quot;,
+              &quot;priority&quot;:&quot;%p&quot;,
+              &quot;category&quot;:&quot;%c{1}&quot;,
+              &quot;exception&quot;:&quot;%exception&quot;
+              }%n" />
+		</Socket>
+	</Appenders>
+	<Loggers>
+		<Logger name="org.jasig" level="info" additivity="false">
+			<AppenderRef ref="console" />
+			<AppenderRef ref="file" />
+		</Logger>
+
+		<!-- <Logger name="org.jasig.cas.ticket.registry" level="debug" additivity="false"> -->
+		<!-- <AppenderRef ref="console" /> -->
+		<!-- <AppenderRef ref="file" /> -->
+		<!-- </Logger> -->
+
+
+
+		<!-- <Logger name="org" level="warn"> -->
+		<!-- <AppenderRef ref="console" /> -->
+		<!-- </Logger> -->
+		<!-- <Logger name="com" level="warn"> -->
+		<!-- <AppenderRef ref="console" /> -->
+		<!-- </Logger> -->
+
+		<Logger name="org.springframework.expression.spel" level="info">
+			<AppenderRef ref="console" />
+		</Logger>
+
+		<Logger name="om.antruak.cas.wsock.controller.SmsReporterImpl"
+			level="info" additivity="false">
+			<AppenderRef ref="smsfile" />
+		</Logger>
+
+
+		<Logger name="com.antruak.hub.service" level="info"
+			additivity="false">
+			<AppenderRef ref="console" />
+		</Logger>
+
+		<Logger name="com.esotericsoftware.kryo" level="warn" />
+		<Logger name="org.springframework.security" level="info" >
+		<AppenderRef ref="console" />
+		</Logger>
+		<Logger name="org.springframework.web.filter.DelegatingFilterProxy"
+			level="info" >
+			<AppenderRef ref="console" />
+		</Logger>
+
+
+		<Logger name="com.antruak.login.auth.process" level="info">
+			<AppenderRef ref="syslog" />
+		</Logger>
+
+		<Logger name="com.antruak.cas.pm.flow" level="info">
+			<AppenderRef ref="syslog" />
+		</Logger>
+
+		<Logger name="com.antruak.cas.audit.CustomCASImpl" level="warn">
+			<AppenderRef ref="syslog" />
+		</Logger>
+
+		<Logger name="com.antruak.login.auth.object.JSecuritySimpleDAOImpl"
+			level="warn">
+			<AppenderRef ref="syslog" />
+		</Logger>
+
+		<Logger name="perfStatsLogger" level="info" additivity="false">
+			<AppenderRef ref="perfFileAppender" />
+		</Logger>
+
+		<Logger name="com.antruak.cas.pm.flow" level="info">
+			<AppenderRef ref="console" />
+		</Logger>
+
+		<Logger name="org.jasig.cas.services.DefaultServicesManagerImpl"
+			level="error" />
+
+
+		<Logger name="net.spy.memcached" level="info">
+			<AppenderRef ref="console" />
+			<AppenderRef ref="file" />
+		</Logger>
+
+		<Logger name="com.esotericsoftware.kryo" level="warn">
+			<AppenderRef ref="console" />
+		</Logger>
+
+
+
+		<Logger name="org.jasig.cas.ticket.registry.support.kryo"
+			level="info">
+		</Logger>
+
+		<Logger name="org.springframework.webflow" level="info" additivity="false">
+			<AppenderRef ref="console" />
+		</Logger>
+
+		<Logger name="org.springframework.web" level="info" additivity="false">
+			<AppenderRef ref="console" />
+		</Logger>
+
+		<Logger name="com.antruak.cas.wsock" level="trace" />
+		<Logger name="com.antruak.cas.test.service" level="info" />
+
+		<Logger
+			name="org.jasig.inspektr.audit.support.Slf4jLoggingAuditTrailManager"
+			level="info">
+			<AppenderRef ref="file" />
+		</Logger>
+
+
+
+		<Root level="info">
+			<AppenderRef ref="console" />
+		</Root>
+	</Loggers>
+</Configuration>

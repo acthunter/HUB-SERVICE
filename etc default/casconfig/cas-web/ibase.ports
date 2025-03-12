@@ -1,0 +1,3 @@
+port_http=12000
+port_jmx=12001
+port_debug=12006

@@ -1,0 +1,54 @@
+cas.banc.mux.autologin=true
+cas.banc.mux.hostport=192.168.12.1:11507
+#cas.banc.mux.hostport=192.168.155.57:8511
+cas.banc.response.timeout=3000
+
+cas.banc.mux.hbeat.tellid=31233
+
+
+#set periode > 0 to start hearbeat
+cas.banc.mux.hbeat.period=240000
+cas.banc.mux.teller.id=335
+cas.banc.mux.teller.pwd=1dservic35
+cas.banc.mux.teller.term=25
+
+#cas.banc.mux.supervisor.tellid=
+#cas.banc.frontend.access=hasIpAddress('192.168.98.52') or hasIpAddress('172.18.4.207') or hasIpAddress('172.18.4.201') or hasIpAddress('172.18.2.80') 
+cas.banc.frontend.access=hasIpAddress('10.45.38.2') or hasIpAddress('172.18.4.207') or hasIpAddress('172.18.4.201') or hasIpAddress('172.18.2.80') 
+#cas.banc.frontend.access=permitAll 
+
+spring.queries.users-query=select xl.loginid as username, xe.password, xe.active from xemployee xe inner join xlogin xl on xe.npp = xl.npp where xl.loginid=?
+#spring.queries.roles-query=select u.email, r.role from user u inner join user_role ur on(u.user_id=ur.user_id) inner join role r on(ur.role_id=r.role_id) where u.email=?
+spring.queries.roles-query=select xl.loginid as username, xpre.idminit as role from xlogin xl inner join xposition xp ON xl.positionid = xp.positionid        inner join xpreviledge xpre ON xp.previledgeid = xpre.positionid where xl.loginid = ?
+	#email gsm emailgsm
+#cas.token.itservice.type=gsm
+cas.token.itservice.type=email
+cas.rsc.dispatch.max=3
+cas.rsc.leave.job=999999
+
+cas.token.itservice.cleardonepassword=false
+
+logging.config=classpath:log4j2.xml
+
+#cas.host.network=192.168.098.053
+cas.host.network=10.45.40.2
+
+cas.server.prefix=https://cas.bni.co.id/cas
+cas.metrics.prefix=hub-prod
+
+casmq.server.hub.keepretry=true
+
+casmq.monitor.sql.keyid=xdispatch,xapproval,xrsc_created
+casmq.monitor.sql.criteria.xdispatch=FROM xrscsync xr WHERE refid is not null and   (effDate < (NOW() - INTERVAL 10 MINUTE) and procStatus = 'H') \
+	or (procStatus = 'I' and batchFlag = 'A' and tflag=0)
+casmq.monitor.sql.fields.xdispatch=id,refid
+casmq.monitor.sql.qlimit.xdispatch=5
+casmq.monitor.sql.criteria.xapproval=FROM xreviewpos xrev JOIN xwfparam xwf ON xrev.wfid = xwf.id \
+    WHERE ISNULL(xrev.procStat) AND xrev.cdate < (NOW() - INTERVAL 15 MINUTE AND xwf.pname = 'approval')
+casmq.monitor.sql.fields.xapproval=xwf.currActor
+casmq.monitor.sql.qlimit.xapproval=5
+casmq.monitor.sql.criteria.xrsc_created=FROM xrscsync t1 \
+    WHERE t1.systemId = 'CAS'AND t1.effDate < NOW() - INTERVAL 15 MINUTE \
+	AND NOT t1.id IN (SELECT t2.refid FROM xrscsync t2 WHERE t2.refid IS NOT NULL)
+casmq.monitor.sql.fields.xrsc_created=id
+casmq.monitor.sql.qlimit.xrsc_created=5

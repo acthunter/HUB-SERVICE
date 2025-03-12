@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<log4j:configuration monitorInterval="10"
+	xmlns:log4j="http://jakarta.apache.org/log4j/">
+	<Properties>
+		<Property name="LOG_PATTERN">
+			%d{yyyy-MM-dd HH:mm:ss.SSS} %5p ${hostName} --- [%15.15t] %-40.40c{1.} : %m%n%ex
+		</Property>
+		<Property name="CONSOLE_LOG_PATTERN">
+			%d{HH:mm:ss.SSS} %5p ${hostName} %-40.40c{1.} : %m%n%ex
+		</Property>
+	</Properties>
+	<Appenders>
+		<Console name="console" target="SYSTEM_OUT">
+			<PatternLayout pattern="${CONSOLE_LOG_PATTERN}" />
+			<ThresholdFilter level="info" />
+		</Console>
+		<RollingFile name="file" fileName="logs/smsmain.log" append="true"
+			filePattern="logs/smsmain-%d{yyyy-MM-dd}-%i.log.zip">
+			<PatternLayout pattern="%d %p [%c] - %m%n" />
+			<Policies>
+				<SizeBasedTriggeringPolicy size="100 Mb" />
+				<TimeBasedTriggeringPolicy interval="1"/>
+			</Policies>
+			<DefaultRolloverStrategy max="10" />
+		</RollingFile>
+		<RollingFile name="smslog" fileName="logs/sms.log" append="true"
+			filePattern="logs/sms-%d{yyyy-MM-dd}-%i.log.zip">
+			<PatternLayout pattern="${CONSOLE_LOG_PATTERN}" />
+			<ThresholdFilter level="info" />
+			<Policies>
+				<SizeBasedTriggeringPolicy size="100 Mb" />
+				<TimeBasedTriggeringPolicy interval="1"/>
+			</Policies>
+			<DefaultRolloverStrategy max="10" />
+		</RollingFile>
+		<!--tambahan untuk log sms api-->
+        	<RollingFile name="apilog" fileName="logs/api_dcassms.log" append="true"
+                        filePattern="logs/api_dcassms-%d{yyyy-MM-dd}-%i.log.zip">
+                        <PatternLayout pattern="${CONSOLE_LOG_PATTERN}" />
+                        <ThresholdFilter level="info" />
+                        <Policies>
+                                <SizeBasedTriggeringPolicy size="100 Mb" />
+                                <TimeBasedTriggeringPolicy interval="1"/>
+                        </Policies>
+                        <DefaultRolloverStrategy max="10" />
+                </RollingFile>
+        <!--tambahan untuk log sms api-->
+
+	</Appenders>
+	<Loggers>
+
+		<Logger name="com.antruak.banc.tools" level="debug"/>
+		
+		<Logger name="com.antruak.cas.wsock.controller.SmsPortController"
+			level="debug" additivity="false">
+			<AppenderRef ref="smslog" />
+		</Logger>
+		
+		<Logger name="com.antruak.cas.wsock.controller.SmsReporterImpl"
+			level="debug" additivity="false">
+			<AppenderRef ref="smslog" /> 
+		</Logger>
+
+		<!--tambahan untuk log sms api-->
+                <Logger name="com.antruak.cas.wsock.controller.SmsPortController"
+                        level="trace" additivity="false">
+                        <AppenderRef ref="apilog" />
+                </Logger>
+                <!--tambahan untuk log sms api-->
+
+
+		<Logger name="com.antruak.banc.batch.tools.BancImplHelper"
+			level="trace">
+			<AppenderRef ref="console" />
+		</Logger>
+		
+		
+
+		<Logger name="perfStatsLogger" level="off" />
+
+		<Root level="info">
+			<AppenderRef ref="console" />
+			<AppenderRef ref="file" />
+		</Root>
+	</Loggers>
+</log4j:configuration>

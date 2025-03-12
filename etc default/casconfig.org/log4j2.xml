@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<log4j:configuration monitorInterval="10"
+	xmlns:log4j="http://jakarta.apache.org/log4j/">
+	<Properties>
+		<Property name="LOG_PATTERN">
+			%d{yyyy-MM-dd HH:mm:ss.SSS} %5p ${hostName}
+			--- [%15.15t] %-40.40c{1.} : %m%n%ex
+		</Property>
+	</Properties>
+	<Appenders>
+		<Console name="console" target="SYSTEM_OUT">
+			<PatternLayout pattern="${LOG_PATTERN}" />
+			<ThresholdFilter level="info" />
+		</Console>
+		<RollingFile name="file" fileName="logs/main.log" append="true"
+			filePattern="logs/main-%d{yyyy-MM-dd-HH}-%i.log.zip">
+			<PatternLayout pattern="%d %p [%c] - %m%n" />
+			<Policies>
+				<OnStartupTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="20 kb" />
+				<TimeBasedTriggeringPolicy />
+			</Policies>
+			 <DefaultRolloverStrategy max="3"/>
+		</RollingFile>
+		<Syslog name="cas_extern" format="RFC5424" host="caslog.bni.co.id"
+			port="514" protocol="UDP" appName="cas_ext" includeMDC="false" mdcId="cas_ext"
+			facility="LOCAL0" enterpriseNumber="18060" newLine="false" messageId="Audit">
+			<LoggerFields>
+				<KeyValuePair key="thread" value="%t" />
+				<KeyValuePair key="priority" value="%p" />
+				<KeyValuePair key="category" value="%c" />
+				<KeyValuePair key="exception" value="%ex" />
+			</LoggerFields>
+		</Syslog>
+		
+		<Syslog name="cas_fe" format="RFC5424" host="caslog.bni.co.id"
+			port="514" protocol="UDP" appName="cas_fe" includeMDC="false" mdcId="cas_fe"
+			facility="LOCAL0" enterpriseNumber="18060" newLine="false" messageId="AuditFE">
+			<LoggerFields>
+				<KeyValuePair key="thread" value="%t" />
+				<KeyValuePair key="priority" value="%p" />
+				<KeyValuePair key="category" value="%c" />
+				<KeyValuePair key="exception" value="%ex" />
+			</LoggerFields>
+		</Syslog>
+		
+	</Appenders>
+	<Loggers>
+		<Logger name="com.antruak.banc.batch.tools" level="debug">
+			<AppenderRef ref="cas_extern" />
+		</Logger>
+
+
+		<Logger name="com.antruak.idm.frontend" level="debug">
+			<AppenderRef ref="cas_fe" />
+		</Logger>
+		
+		
+		<Logger name="com.antruak.banc.batch.main.CasMQJsf" level="info">
+			
+		</Logger>
+		
+		<Logger name="com.antruak.banc.test.feed" level="warn">
+			<AppenderRef ref="console" />
+		</Logger>
+
+
+		<Root level="info">
+			<AppenderRef ref="console" />
+			<AppenderRef ref="file" />
+		</Root>
+	</Loggers>
+</log4j:configuration>

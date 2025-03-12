@@ -1,0 +1,27 @@
+RunConfig
+Cas
+
+-Dcatalina.base="F:\SunDev\caswsp\.metadata\.plugins\org.eclipse.wst.server.core\tmp3" -Dcatalina.home="F:\Sun\tom-8.5.24" -Dwtp.deploy="F:\SunDev\caswsp\.metadata\.plugins\org.eclipse.wst.server.core\tmp3\wtpwebapps" -Djava.endorsed.dirs="F:\Sun\tom-8.5.24\endorsed"
+-Djava.net.preferIPv4Stack=true 
+-Dws.properties.path=d:/Sun/runconfig/ws-slave.properties
+-Dcom.sun.management.jmxremote.authenticate=false
+-Dcom.sun.management.jmxremote.ssl=false
+-Dcom.sun.management.jmxremote=true
+-Dcom.sun.management.jmxremote.port=9011
+-Dkey1key=secret1
+-Dcaslocal.prop.location=file:f://sundev/runconfig/cas-gen/mq-base0.properties,file:f://sundev/runconfig/cas-gen/db-base0.properties,file:f://sundev/runconfig/cas-web/sys-base0.properties
+
+Hub
+-Djava.net.preferIPv4Stack=true 
+-Dws.properties.path=d:/Sun/runconfig/ws-slave.properties
+-Dcom.sun.management.jmxremote.authenticate=false
+-Dcom.sun.management.jmxremote.ssl=false
+-Dcom.sun.management.jmxremote=true
+-Dcom.sun.management.jmxremote.port=9010
+-Dcasmain.properties.filepath=file:f://sundev/runconfig/cas-gen/mq-base0.properties,file:f://sundev/runconfig/cas-gen/db-base0.properties,file:f://sundev/runconfig/cas-hub/hub-base0.properties
+-Dorg.apache.activemq.SERIALIZABLE_PACKAGES=com.antruak.idm.job,java.util
+-Dspring.profiles.active=local
+
+Sms
+file:f://sundev/runconfig/cas-gen/mq-base0.properties,file:f://sundev/runconfig/cas-sms/sms-base0.properties
+

@@ -1,0 +1,17 @@
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4 sso2.bni.co.id 
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+10.45.44.2	cdb.bni.co.id
+#192.168.131.83	cdb.bni.co.id
+#10.45.40.3	cdb.bni.co.id
+172.18.4.201	cas.bni.co.id dcdb.bni.co.id
+172.18.4.203	apps2.bni.co.id
+172.18.3.244	voip.bni.co.id
+172.18.4.211	slave.bni.co.id
+192.168.46.147	oid.bni.co.id
+
+#192.168.98.52	psso1 psso1.bni.co.id
+10.45.38.2	psso1 psso1.bni.co.id
+#192.168.98.53	psso1 psso2.bni.co.id caslog.bni.co.id
+10.45.40.2	psso1 psso2.bni.co.id caslog.bni.co.id
+10.45.36.2	fcm-xmpp.googleapis.com

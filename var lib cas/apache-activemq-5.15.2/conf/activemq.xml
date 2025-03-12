@@ -1,0 +1,167 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:util="http://www.springframework.org/schema/util"
+  xmlns:context="http://www.springframework.org/schema/context"
+  
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.1.xsd
+   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
+
+    
+	<!--
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+			<list>
+				<value>file:${activemq.conf}/credentials.properties</value>
+				<value>file:${activemq.conf}/ibase.properties</value>
+			</list>
+        </property>
+    </bean>
+	-->
+	
+	<util:properties id="aqProperties"
+	location="file:${activemq.conf}/credentials.properties,file:${activemq.conf}/ibase.properties" />
+	
+	<!--context:property-placeholder 
+		properties-ref="aqProperties" /--> 
+		
+	<bean id="propertyPlaceholderConfigurer"
+		class="org.jasypt.spring.properties.EncryptablePropertyPlaceholderConfigurer">
+		<constructor-arg ref="configurationEncryptor" />
+			<property name="properties">
+				<ref bean="aqProperties"/>
+			</property>
+	</bean>
+
+	<bean id="configurationEncryptor" class="org.jasypt.encryption.pbe.StandardPBEStringEncryptor">
+		<property name="config" ref="environmentVariablesConfiguration" />
+	</bean>
+
+	<bean id="environmentVariablesConfiguration"
+		class="org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig">
+		<property name="algorithm" value="PBEWithMD5AndDES" />
+<!-- 		<property name="passwordEnvName" value="CAS_PBE_PASSWORD" /> -->
+		<!-- <property name="password" value="actual password here for testing 
+			ONLY" /> -->
+		<property name="password" value="secret1" />	
+	</bean>
+		
+		
+    <bean id="logQuery" class="io.fabric8.insight.log.log4j.Log4jLogQuery"
+          lazy-init="false" scope="singleton"
+          init-method="start" destroy-method="stop"> 
+    </bean>
+
+    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="mq_pprod" dataDirectory="${activemq.data}">
+	<!--<sslContext>
+		<sslContext keyStore="${activemq.conf}/sec/broker.ks" keyStorePassword="${cas.activemq.keystore.password}"
+			trustStore="/etc/ssl/certs/psso2/oti-ca.ts" trustStorePassword="${cas.activemq.truststore.password}"/>
+	</sslContext>-->
+        <destinationPolicy>
+            <policyMap>
+              <policyEntries>
+                <policyEntry topic=">" >
+                  <pendingMessageLimitStrategy>
+                    <constantPendingMessageLimitStrategy limit="1000"/>
+                  </pendingMessageLimitStrategy>
+                </policyEntry>
+              </policyEntries>
+            </policyMap>
+        </destinationPolicy>
+		<plugins>
+			<simpleAuthenticationPlugin>
+				<users>
+					<authenticationUser username="system"
+						password="manager" groups="users,admins" />
+					<authenticationUser username="user"
+						password="password" groups="users" />
+					<authenticationUser username="guest"
+						password="password" groups="guests" />
+					<authenticationUser username="xguest"
+						password="password" groups="guests" />
+					<authenticationUser username="smsout"
+						password="myPassWord99" groups="smsout,users" />
+					<authenticationUser username="dsmsout"
+						password="dPassWord99" groups="smsout,users" />
+				</users>
+			</simpleAuthenticationPlugin>
+			<authorizationPlugin>
+				<map>
+				  <authorizationMap>
+					<authorizationEntries>
+					  <authorizationEntry queue=">" read="admins,users" write="admins,users" admin="admins,users" />
+					  <authorizationEntry queue="USERS.>" read="users" write="users" admin="users" />
+					  <authorizationEntry queue="GUEST.>" read="guests" write="guests,users" admin="guests,users" />
+					  
+					  <authorizationEntry queue="TEST.Q" read="guests" write="guests" />
+					  <authorizationEntry queue="cas.sms.out" read="smsout,users" write="smsout,users" admin="admin,smsout,users"/>
+					  <authorizationEntry queue="cas.mail" read="users" write="users" admin="admin,users"/>
+					  <authorizationEntry topic=">" read="admins,users" write="admins,users" admin="admins,users" />
+					  <authorizationEntry topic="USERS.>" read="users" write="users" admin="users" />
+					  <authorizationEntry topic="GUEST.>" read="guests" write="guests,users" admin="guests,users" /> 
+					  
+					  <authorizationEntry topic="ActiveMQ.Advisory.>" read="guests,users" write="guests,users" admin="guests,users"/>
+					</authorizationEntries>
+				 </authorizationMap>
+				</map>
+			  </authorizationPlugin>
+		</plugins>
+
+        <managementContext>
+            <managementContext createConnector="false"/>
+        </managementContext>
+
+        <persistenceAdapter>
+            <kahaDB directory="${activemq.data}/kahadb"/>
+        </persistenceAdapter>
+
+
+          <systemUsage>
+            <systemUsage>
+                <memoryUsage>
+                    <memoryUsage percentOfJvmHeap="70" />
+                </memoryUsage>
+                <storeUsage>
+                    <storeUsage limit="100 gb"/>
+                </storeUsage>
+                <tempUsage>
+                    <tempUsage limit="50 gb"/>
+                </tempUsage>
+            </systemUsage>
+        </systemUsage>
+
+        <!--<transportConnectors>
+            <transportConnector name="openwire" uri="tcp://0.0.0.0:${cas.activemq.port.wire}?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+	<transportConnector name="openwiressl" uri="nio+ssl://0.0.0.0:12012?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600&amp;needClientAuth=true"/>
+            <transportConnector name="stomp" uri="stomp://0.0.0.0:${cas.activemq.port.stomp}?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+        </transportConnectors>-->
+		
+		<transportConnectors>
+            <transportConnector name="openwire" uri="tcp://0.0.0.0:${cas.activemq.port.wire}?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+			<!--<transportConnector name="openwiressl" uri="nio+ssl://0.0.0.0:12012?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600&amp;needClientAuth=true"/>-->
+            <transportConnector name="stomp" uri="stomp://0.0.0.0:${cas.activemq.port.stomp}?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+        </transportConnectors>
+
+        <shutdownHooks>
+            <bean xmlns="http://www.springframework.org/schema/beans" class="org.apache.activemq.hooks.SpringContextHook" />
+        </shutdownHooks>
+	
+	<!--<networkConnectors>
+		<networkConnector name="mqprod" uri="static:(nio://192.168.98.53:12002)" userName="dsmsout" password="dPassWord99">
+		<networkConnector name="mqprod" uri="static:(nio+ssl://192.168.98.53:12012)" userName="dsmsout" password="dPassWord99">
+			<dynamicallyIncludedDestinations>
+				<queue physicalName="cas.sms.out"/>
+			</dynamicallyIncludedDestinations>
+			<excludedDestinations>
+				<queue physicalName="cas.tocas"/>
+			</excludedDestinations>
+		</networkConnector>
+	</networkConnectors>-->
+	
+    </broker>
+
+    <import resource="jetty.xml"/>
+
+</beans>
